@@ -29,12 +29,12 @@ class WaystonesDirectory {
             const response = await fetch('/api/directory');
             const data = await response.json();
             
-            if (data.error) {
-                throw new Error(data.error);
+            if (data.error || !data.success) {
+                throw new Error(data.error || 'Failed to load directory data');
             }
             
-            this.directoryData = data;
-            this.filteredData = data;
+            this.directoryData = data.waystones;
+            this.filteredData = data.waystones;
             
             this.hideLoading();
             this.showContent();

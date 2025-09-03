@@ -26,14 +26,14 @@ class WaystonesMap {
             const response = await fetch('/api/waystones');
             const data = await response.json();
             
-            if (data.error) {
-                throw new Error(data.error);
+            if (data.error || !data.success) {
+                throw new Error(data.error || 'Failed to load waystone data');
             }
             
             this.hideLoading();
             this.showMap();
-            this.createGraph(data);
-            this.displayMetadata(data.metadata);
+            this.createGraph(data.waystones);
+            this.displayMetadata(data.waystones.metadata);
             
         } catch (error) {
             console.error('Error loading map data:', error);

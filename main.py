@@ -88,17 +88,28 @@ def get_waystones_data():
                         })
         
         return jsonify({
-            "nodes": nodes,
-            "edges": edges,
-            "metadata": {
-                "total_waystones": len(nodes),
-                "data_source": "waystones_api"
-            }
+            "waystones": {
+                "nodes": nodes,
+                "edges": edges,
+                "metadata": {
+                    "total_waystones": len(nodes),
+                    "data_source": "waystones_api",
+                    "coordinate_scale": COORDINATE_SCALE,
+                    "max_connection_distance": MAX_CONNECTION_DISTANCE
+                }
+            },
+            "success": True,
+            "timestamp": __import__('datetime').datetime.now().isoformat()
         })
         
     except Exception as e:
         print(f"Error fetching waystone data: {e}")
-        return get_sample_waystone_data()
+        return jsonify({
+            "error": str(e),
+            "success": False,
+            "timestamp": __import__('datetime').datetime.now().isoformat(),
+            "fallback_to_sample": True
+        }), 500
 
 def get_sample_waystone_data():
     """Generate sample waystone data for demo purposes"""
@@ -190,12 +201,18 @@ def get_sample_waystone_data():
             })
     
     return jsonify({
-        "nodes": nodes,
-        "edges": edges,
-        "metadata": {
-            "total_waystones": len(nodes),
-            "data_source": "sample_data"
-        }
+        "waystones": {
+            "nodes": nodes,
+            "edges": edges,
+            "metadata": {
+                "total_waystones": len(nodes),
+                "data_source": "sample_data",
+                "coordinate_scale": COORDINATE_SCALE,
+                "max_connection_distance": MAX_CONNECTION_DISTANCE
+            }
+        },
+        "success": True,
+        "timestamp": __import__('datetime').datetime.now().isoformat()
     })
 
 @app.route('/directory')
@@ -239,11 +256,21 @@ def get_directory_data():
                     "type": "waystone"
                 })
         
-        return jsonify(directory_data)
+        return jsonify({
+            "waystones": directory_data,
+            "success": True,
+            "total_count": len(directory_data),
+            "timestamp": __import__('datetime').datetime.now().isoformat()
+        })
         
     except Exception as e:
         print(f"Error fetching directory data: {e}")
-        return get_sample_directory_data()
+        return jsonify({
+            "error": str(e),
+            "success": False,
+            "timestamp": __import__('datetime').datetime.now().isoformat(),
+            "fallback_to_sample": True
+        }), 500
 
 def get_sample_directory_data():
     """Generate sample directory data for demo purposes"""
@@ -290,7 +317,12 @@ def get_sample_directory_data():
         }
     ]
     
-    return jsonify(sample_data)
+    return jsonify({
+        "waystones": sample_data,
+        "success": True,
+        "total_count": len(sample_data),
+        "timestamp": __import__('datetime').datetime.now().isoformat()
+    })
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

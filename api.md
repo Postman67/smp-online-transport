@@ -15,37 +15,42 @@ Retrieves waystone data formatted for Sigma.js network visualization.
 **Response Format:**
 ```json
 {
-  "nodes": [
-    {
-      "id": "public_waystone_ad2c8c14-3f3f-43c1-b0ed-3efd8ce9b792",
-      "label": "The Den",
-      "x": -75.82,
-      "y": -83.82,
-      "size": 15,
-      "color": "#e74c3c",
-      "type": "waystone",
-      "info": {
-        "key": "public_waystone_ad2c8c14-3f3f-43c1-b0ed-3efd8ce9b792",
-        "coordinates": "X: -7582, Z: -8382",
-        "image": "smptransport_waystone_markers",
-        "tooltip": "The Den",
-        "popup": "The Den"
+  "waystones": {
+    "nodes": [
+      {
+        "id": "public_waystone_ad2c8c14-3f3f-43c1-b0ed-3efd8ce9b792",
+        "label": "The Den",
+        "x": -75.82,
+        "y": -83.82,
+        "size": 15,
+        "color": "#e74c3c",
+        "info": {
+          "key": "public_waystone_ad2c8c14-3f3f-43c1-b0ed-3efd8ce9b792",
+          "coordinates": "X: -7582, Z: -8382",
+          "image": "smptransport_waystone_markers",
+          "tooltip": "The Den",
+          "popup": "The Den"
+        }
       }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "source": "waystone_1",
+        "target": "waystone_2",
+        "color": "#95a5a6",
+        "size": 1
+      }
+    ],
+    "metadata": {
+      "total_waystones": 4,
+      "data_source": "waystones_api",
+      "coordinate_scale": 100,
+      "max_connection_distance": 5000
     }
-  ],
-  "edges": [
-    {
-      "id": "e1",
-      "source": "waystone_1",
-      "target": "waystone_2",
-      "color": "#95a5a6",
-      "size": 1
-    }
-  ],
-  "metadata": {
-    "total_waystones": 4,
-    "data_source": "waystones_api"
-  }
+  },
+  "success": true,
+  "timestamp": "2025-09-03T14:30:00"
 }
 ```
 
@@ -62,21 +67,26 @@ Retrieves waystone data formatted for directory listing.
 
 **Response Format:**
 ```json
-[
-  {
-    "id": "public_waystone_ad2c8c14-3f3f-43c1-b0ed-3efd8ce9b792",
-    "name": "The Den",
-    "key": "public_waystone_ad2c8c14-3f3f-43c1-b0ed-3efd8ce9b792",
-    "coordinates": {
-      "x": -7582,
-      "z": -8382
-    },
-    "image": "smptransport_waystone_markers",
-    "tooltip": "The Den",
-    "popup": "The Den",
-    "type": "waystone"
-  }
-]
+{
+  "waystones": [
+    {
+      "id": "public_waystone_ad2c8c14-3f3f-43c1-b0ed-3efd8ce9b792",
+      "name": "The Den",
+      "key": "public_waystone_ad2c8c14-3f3f-43c1-b0ed-3efd8ce9b792",
+      "coordinates": {
+        "x": -7582,
+        "z": -8382
+      },
+      "image": "smptransport_waystone_markers",
+      "tooltip": "The Den",
+      "popup": "The Den",
+      "type": "waystone"
+    }
+  ],
+  "success": true,
+  "total_count": 4,
+  "timestamp": "2025-09-03T14:30:00"
+}
 ```
 
 **Parameters:**
@@ -148,9 +158,21 @@ If the API endpoint is not configured or returns an error, the application falls
 **Error Response:**
 ```json
 {
-  "error": "Error message here"
+  "error": "Error message here",
+  "success": false,
+  "timestamp": "2025-09-03T14:30:00",
+  "fallback_to_sample": true
 }
 ```
+
+## Enhanced API Features
+
+### Response Structure Benefits
+- **Wrapper Objects**: All responses are wrapped in objects instead of returning raw arrays
+- **Future Extensibility**: Easy to add pagination, filtering, or metadata without breaking changes
+- **Success Indicators**: Clear success/failure status in all responses
+- **Timestamps**: All responses include generation timestamps
+- **Error Handling**: Consistent error response format across all endpoints
 
 ## Sample Data
 
