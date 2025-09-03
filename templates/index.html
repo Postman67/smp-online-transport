@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Map View - Transport Directory{% endblock %}
+
+{% block extra_head %}
+<script src="https://unpkg.com/sigma@2.4.0/build/sigma.min.js"></script>
+<script src="https://unpkg.com/graphology@0.25.1/dist/graphology.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Waystones Network Map</h3>
+                <small class="text-muted">Click and drag to explore, hover over waystones for details</small>
+            </div>
+            <div class="card-body">
+                <div id="loading" class="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading map data...</p>
+                </div>
+                <div id="error-message" class="error" style="display: none;"></div>
+                <div id="map-container" style="width: 100%; height: 500px; display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Waystone Information</h4>
+            </div>
+            <div class="card-body">
+                <div id="node-info">
+                    <p class="text-muted">Click on a waystone to see details</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loadingEl = document.getElementById('loading');
+    const errorEl = document.getElementById('error-message');
+    const mapContainer = document.getElementById('map-container');
+    const nodeInfoEl = document.getElementById('node-info');
+    
+    // Fetch data and initialize map
+    fetch('/api/waystones')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            loadingEl.style.display = 'none';
+            mapContainer.style.display = 'block';
+            
+            // Create graph
+            const graph = new graphology.Graph();
+            
+            // Add nodes (waystones)
+            data.nodes.forEach(node => {
+                graph.addNode(node.id, {
+                    x: node.x,
+                    y: node.y,
+                    size: node.size,
+                    color: node.color,
+                    label: node.label,
+                    info: node.info
+                });
+            });
+            
+            // Add edges (connections)
+            data.edges.forEach(edge => {
+                graph.addEdge(edge.source, edge.target, {
+                    color: edge.color,
+                    size: edge.size
+                });
+            });
+            
+            // Initialize Sigma
+            const sigma = new Sigma(graph, mapContainer, {
+                renderLabels: true,
+                labelRenderedSizeThreshold: 8,
+                labelSize: 14,
+                labelColor: { color: '#000' },
+                defaultNodeColor: '#e74c3c',
+                defaultEdgeColor: '#95a5a6'
+            });
+            
+            // Add waystone click interaction
+            sigma.on('clickNode', (event) => {
+                const nodeId = event.node;
+                const nodeData = graph.getNodeAttributes(nodeId);
+                
+                let infoHtml = `
+                    <h5>${nodeData.label}</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="/static/images/${nodeData.info.image}.png" 
+                                 alt="Waystone Marker" 
+                                 style="width: 64px; height: 64px; margin-bottom: 10px;">
+                            <br>
+                            <strong>Key:</strong> <code>${nodeData.info.key}</code><br>
+                            <strong>Type:</strong> Waystone<br>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Coordinates:</strong> ${nodeData.info.coordinates}<br>
+                            <strong>Tooltip:</strong> ${nodeData.info.tooltip}<br>
+                            <strong>Popup:</strong> ${nodeData.info.popup}
+                        </div>
+                    </div>
+                `;
+                
+                nodeInfoEl.innerHTML = infoHtml;
+            });
+            
+            // Enhanced hover effects for waystones
+            sigma.on('enterNode', (event) => {
+                const nodeId = event.node;
+                sigma.getGraph().setNodeAttribute(nodeId, 'highlighted', true);
+                sigma.getGraph().setNodeAttribute(nodeId, 'size', 20); // Bigger on hover
+                sigma.refresh();
+            });
+            
+            sigma.on('leaveNode', (event) => {
+                const nodeId = event.node;
+                sigma.getGraph().setNodeAttribute(nodeId, 'highlighted', false);
+                sigma.getGraph().setNodeAttribute(nodeId, 'size', 15); // Back to normal
+                sigma.refresh();
+            });
+            
+            // Display metadata if available
+            if (data.metadata) {
+                const metadataHtml = `
+                    <div class="alert alert-info mt-3">
+                        <strong>Map Info:</strong> ${data.metadata.total_waystones} waystones loaded 
+                        (Source: ${data.metadata.data_source})
+                    </div>
+                `;
+                document.querySelector('.col-12').insertAdjacentHTML('beforeend', metadataHtml);
+            }
+            
+        })
+        .catch(error => {
+            console.error('Error loading map data:', error);
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'block';
+            errorEl.innerHTML = `<strong>Error:</strong> ${error.message}`;
+        });
+});
+</script>
+{% endblock %}
