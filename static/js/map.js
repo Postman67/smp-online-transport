@@ -108,14 +108,14 @@ class WaystonesMap {
         this.sigma.on('enterNode', (event) => {
             const nodeId = event.node;
             this.graph.setNodeAttribute(nodeId, 'highlighted', true);
-            this.graph.setNodeAttribute(nodeId, 'size', 20); // Bigger on hover
+            this.graph.setNodeAttribute(nodeId, 'size', 10); // Bigger on hover
             this.sigma.refresh();
         });
         
         this.sigma.on('leaveNode', (event) => {
             const nodeId = event.node;
             this.graph.setNodeAttribute(nodeId, 'highlighted', false);
-            this.graph.setNodeAttribute(nodeId, 'size', 15); // Back to normal
+            this.graph.setNodeAttribute(nodeId, 'size', 5); // Back to normal
             this.sigma.refresh();
         });
     }
