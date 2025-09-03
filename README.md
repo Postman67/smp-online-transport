@@ -102,7 +102,13 @@ smp-online-transport/
 │   ├── base.html                       # Base template
 │   ├── index.html                      # Map view
 │   └── directory.html                  # Directory view
-└── static/                             # Static assets (CSS, JS, images)
+└── static/                             # Static assets
+    ├── css/
+    │   └── waystone.css                # Custom CSS styles
+    └── js/
+        ├── utils.js                    # Common utilities
+        ├── map.js                      # Map functionality
+        └── directory.js                # Directory functionality
 ```
 
 ## API Endpoints
